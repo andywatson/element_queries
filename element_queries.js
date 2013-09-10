@@ -110,17 +110,23 @@ $.extend(mcrmade.elementQueries.prototype, {
 
 			if (this.element.parent().innerWidth() >= i) {
 
-				this.activateBreakpoint(this.options.breakpoints[i]);
+				if (!this.options.breakpoints[i].active) {
+
+					this.activateBreakpoint(this.options.breakpoints[i]);
+				}
 			} else {
 
-				this.deactivateBreakpoint(this.options.breakpoints[i]);
-			}
+				if (this.options.breakpoints[i].active) {
 
-			this.testFunctions();
+					this.deactivateBreakpoint(this.options.breakpoints[i]);
+				}
+			}
 		}
 	},
 
 	activateBreakpoint: function(breakpoint) {
+
+		breakpoint.active = true;
 
 		this.element.addClass(breakpoint.name);
 
@@ -129,46 +135,32 @@ $.extend(mcrmade.elementQueries.prototype, {
 
 	deactivateBreakpoint: function(breakpoint) {
 
+		breakpoint.active = false;
+
 		this.element.removeClass(breakpoint.name);
 
 		this.deactivateMethods(breakpoint);
 	},
 
-	testFunctions: function() {
-
-		for (var i in this.options.breakpoints) {
-
-			if (this.element.hasClass(this.options.breakpoints[i].name)) {
-
-				this.deactivateMethods(this.options.breakpoints[i]);
-			}
-
-			if (this.element.hasClass(this.options.breakpoints[i].name + '-active')) {
-
-				this.activateMethods(this.options.breakpoints[i]);
-			}
-		}
-	},
-
 	activateMethods: function(breakpoint) {
 
-		if (breakpoint.activated) {
+		if (
+			breakpoint.activated &&
+			typeof breakpoint.activated == 'function'
+		) {
 
-			for (var f in breakpoint.activated) {
-
-				breakpoint.activated[f].call();
-			}
+			breakpoint.activated.call();
 		}
 	},
 
 	deactivateMethods: function(breakpoint) {
 
-		if (breakpoint.deactivated) {
+		if (
+			breakpoint.deactivated &&
+			typeof breakpoint.deactivated == 'function'
+		) {
 
-			for (var f in breakpoint.deactivated) {
-
-				breakpoint.deactivated[f].call();
-			}
+			breakpoint.deactivated.call();
 		}
 	}
 });
